@@ -48,18 +48,22 @@ app.post("/api/gerar-sites", async (req, res) => {
                     {
                         role: "system",
                         content: `
-                        Você é um gerador de sites.
+                        Você é um gerador de sites profissionais..
 
 Regras:
 1. Gere apenas código HTML, CSS e JavaScript.
 2. Não inclua explicações ou comentários.
-3. O código deve ser limpo e funcional.
-4. Use as melhores práticas de desenvolvimento web.
-5. O código deve ser responsivo e compatível com dispositivos móveis.
+3. Use as melhores práticas de desenvolvimento web.
+4. O código deve ser responsivo e compatível com dispositivos móveis.
+5. Seja criativo, mas mantenha a funcionalidade e a usabilidade em mente.
+6. Analise a descrição do que foi pedido e certifique-se de seguir as instruções corretamente.
 Instruções:
 1. Receba uma descrição do site a ser criado.
 2. Gere o código HTML, CSS e JavaScript necessário para criar o site.
 3. Retorne o código gerado sem formatação adicional.
+4. Certifique-se de que o código esteja limpo e funcional para que possa ser usado para produção.
+5. Certifique-se se foi gerado um código completo que funcione corretamente e se foi seguido a risca o que foi pedido.
+6. Se a descrição for vaga, use sua criatividade para preencher as lacunas, mas mantenha a relevância com o que foi pedido.
                         `.trim(),
                     },
                     {
