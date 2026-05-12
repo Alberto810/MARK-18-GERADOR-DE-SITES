@@ -1,21 +1,7 @@
-import express from "express";
 import dotenv from "dotenv";
-import path from "path";
-import cors from "cors";
-import { fileURLToPath } from "url";
-
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const app = express();
-const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.GROQ_API_KEY;
-
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
-app.use(express.json());
 
 function limparCodigo(texto) {
     return texto
@@ -24,11 +10,19 @@ function limparCodigo(texto) {
         .trim();
 }
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
-});
+export default async function handler(req, res) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-app.post("/api/gerar-sites", async (req, res) => {
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Método não permitido." });
+    }
+
     const { input } = req.body;
 
     if (!input) {
@@ -36,7 +30,7 @@ app.post("/api/gerar-sites", async (req, res) => {
     }
 
     if (!API_KEY) {
-        return res.status(500).json({ error: "Chave de API não configurada no servidor." });
+        return res.status(500).json({ error: "Chave de API não configurada." });
     }
 
     try {
@@ -51,8 +45,7 @@ app.post("/api/gerar-sites", async (req, res) => {
                 messages: [
                     {
                         role: "system",
-                        content: `
-                        Você é um gerador de sites profissionais.
+                        content: `Você é um gerador de sites profissonais.
 
 Regras:
 1. Gere apenas código HTML, CSS e JavaScript.
@@ -68,7 +61,8 @@ Regras:
 11. Certifique-se de que o código esteja limpo e funcional para que possa ser usado para produção.
 12. Certifique-se se foi gerado um código completo que funcione corretamente e se foi seguido a risca o que foi pedido.
 13. Se a descrição for vaga, use sua criatividade para preencher as lacunas, mas mantenha a relevância com o que foi pedido.
-                        `.trim(),
+
+                    `.trim(),
                     },
                     {
                         role: "user",
@@ -87,23 +81,10 @@ Regras:
         const bruto = data.choices?.[0]?.message?.content || "";
         const codigo = limparCodigo(bruto);
 
-        return res.json({
-            codigo,
-            bruto,
-        });
+        return res.json({ codigo, bruto });
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Erro interno no servidor." });
+        return res.status(500).json({ error: "Erro interno no servidor." });
     }
-});
-
-// Para rodar localmente
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Servidor rodando em http://localhost:${PORT}`);
-    });
 }
-
-// Necessário para a Vercel
-export default app;
-
